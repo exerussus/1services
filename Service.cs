@@ -91,7 +91,7 @@ namespace Exerussus.Servecies
         }
         
         public virtual void OnInitialize() { }
-        public virtual void OnPostInitSices() { }
+        public virtual void OnPostInitServices() { }
         public virtual void OnDestroy() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }

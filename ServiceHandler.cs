@@ -37,6 +37,7 @@ namespace Exerussus.Servecies
             SetSharedData(_gameShare);
             PreInitServices();
             InitServices();
+            PostInitServices();
 
             GetAllUpdates();
             
@@ -54,6 +55,11 @@ namespace Exerussus.Servecies
         private void InitServices()
         {
             foreach (var service in _services) service.Initialize();
+        }
+
+        private void PostInitServices()
+        {
+            foreach (var service in _services) service.PostInitServices();
         }
 
         private void GetAllUpdates()

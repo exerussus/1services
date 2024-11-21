@@ -84,8 +84,14 @@ namespace Exerussus.Servecies
             OnInitialize();
             foreach (var serviceModule in _modules) serviceModule.Initialize();
         }
+
+        public void PostInitServices()
+        {
+            OnPostInitServices();
+        }
         
         public virtual void OnInitialize() { }
+        public virtual void OnPostInitSices() { }
         public virtual void OnDestroy() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }

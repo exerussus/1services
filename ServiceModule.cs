@@ -13,12 +13,10 @@ namespace Exerussus.Servecies
         {
             _signal = signal;
             _gameShare = gameShare;
+            OnPreInitialize();
         }
 
-        public virtual void OnDestroy()
-        {
-            
-        }
+        public virtual void OnDestroy() { }
 
         public void SubscribeSignal<T>(Action<T> action) where T : struct
         {
@@ -30,7 +28,7 @@ namespace Exerussus.Servecies
             _signal?.Unsubscribe(action);
         }
 
-        
+        public virtual void OnPreInitialize() { }
         public virtual void Initialize() {}
     }
     

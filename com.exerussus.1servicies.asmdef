@@ -1,0 +1,16 @@
+{
+    "name": "com.exerussus.1servicies",
+    "rootNamespace": "Exerussus.Servecies",
+    "references": [
+        "GUID:5d2496e3961aab04698216f31a3d9282"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

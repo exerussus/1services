@@ -1,0 +1,21 @@
+{
+  "name": "com.exerussus.1services",
+  "version": "1.0.0",
+  "displayName": "1Servecies",
+  "description": "Сервисная архитектура.",
+  "unity": "2020.3",
+  "dependencies": {},
+  "keywords": [
+    "1extensions",
+    "exerussus",
+    "services"
+  ],
+  "author": {
+    "name": "Exerussus",
+    "email": "solovyov.production@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/exerussus/1services.git"
+  }
+}

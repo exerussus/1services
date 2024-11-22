@@ -28,7 +28,7 @@ namespace Exerussus.Servecies
             
             if (_modules.Length == 0) return;
 
-            foreach (var serviceModule in _modules) serviceModule.PreInitialize(gameShare, signal);
+            foreach (var serviceModule in _modules) serviceModule.PreInitialize(gameShare, signal, this);
             
             var updateList = new List<IModuleUpdate>();
             foreach (var serviceModule in _modules)

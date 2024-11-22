@@ -25,34 +25,38 @@ namespace Exerussus.Servecies
             _signal = signal;
             _gameShare.AddSharedObject(this);
             _modules = GetModules();
-            
-            if (_modules.Length == 0) return;
 
-            foreach (var serviceModule in _modules) serviceModule.PreInitialize(gameShare, signal, this);
-            
-            var updateList = new List<IModuleUpdate>();
-            foreach (var serviceModule in _modules)
+            if (_modules.Length == 0)
             {
-                if (serviceModule is IModuleUpdate updateModule)
+                foreach (var serviceModule in _modules) serviceModule.PreInitialize(gameShare, signal, this);
+            
+                var updateList = new List<IModuleUpdate>();
+                foreach (var serviceModule in _modules)
                 {
-                    HasUpdateModules = true;
-                    updateList.Add(updateModule);
+                    if (serviceModule is IModuleUpdate updateModule)
+                    {
+                        HasUpdateModules = true;
+                        updateList.Add(updateModule);
+                    }
                 }
+
+                _updateModules = updateList.ToArray();
+
+                var fixedUpdateList = new List<IModuleFixedUpdate>();
+                foreach (var serviceModule in _modules)
+                {
+                    if (serviceModule is IModuleFixedUpdate updateModule)
+                    {
+                        HasFixedUpdateModules = true;
+                        fixedUpdateList.Add(updateModule);
+                    }
+                }
+
+                _fixedUpdateModules = fixedUpdateList.ToArray();
             }
 
-            _updateModules = updateList.ToArray();
-
-            var fixedUpdateList = new List<IModuleFixedUpdate>();
-            foreach (var serviceModule in _modules)
-            {
-                if (serviceModule is IModuleFixedUpdate updateModule)
-                {
-                    HasFixedUpdateModules = true;
-                    fixedUpdateList.Add(updateModule);
-                }
-            }
-
-            _fixedUpdateModules = fixedUpdateList.ToArray();
+            SetSharedObject();
+            foreach (var serviceModule in _modules) serviceModule.SetSharedObject(GameShare);
         }
 
         public void SubscribeSignal<T>(Action<T> action) where T : struct
@@ -64,6 +68,8 @@ namespace Exerussus.Servecies
         {
             _signal?.Unsubscribe(action);
         }
+        
+        public virtual void SetSharedObject() { }
 
         protected abstract ServiceModule[] GetModules();
 

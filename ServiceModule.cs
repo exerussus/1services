@@ -8,7 +8,10 @@ namespace Exerussus.Servecies
     {
         private Signal _signal;
         private GameShare _gameShare;
-        
+
+        public Signal Signal => _signal;
+        public GameShare GameShare => _gameShare;
+
         public virtual void PreInitialize(GameShare gameShare, Signal signal, Service service)
         {
             _signal = signal;
@@ -17,6 +20,8 @@ namespace Exerussus.Servecies
             _gameShare.AddSharedObject(service.GetType(), GetType(), this);
             OnPreInitialize();
         }
+        
+        public virtual void SetSharedObject(GameShare gameShare) { }
 
         public virtual void OnDestroy() { }
 

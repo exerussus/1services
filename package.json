@@ -1,7 +1,7 @@
 {
   "name": "com.exerussus.1services",
-  "version": "1.0.1",
-  "displayName": "1Servecies",
+  "version": "1.0.2",
+  "displayName": "1Services",
   "description": "Сервисная архитектура.",
   "unity": "2020.3",
   "dependencies": {},

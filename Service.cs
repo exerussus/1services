@@ -27,7 +27,7 @@ namespace Exerussus.Servecies
             _gameShare.AddSharedObject(this);
             _modules = GetModules();
 
-            if (_modules.Length == 0)
+            if (_modules.Length != 0)
             {
                 foreach (var serviceModule in _modules) serviceModule.CreateInstances(gameShare, signal, this);
             

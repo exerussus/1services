@@ -35,6 +35,9 @@ namespace Exerussus.Servecies
         {
             _services = GetServices();
             SetSharedData(_gameShare);
+            CreateInstances();
+            SetAllSharedData();
+            InjectAll();
             PreInitServices();
             InitServices();
             PostInitServices();
@@ -47,9 +50,24 @@ namespace Exerussus.Servecies
         protected virtual void SetSharedData(GameShare gameShare) { }
         protected abstract Service[] GetServices();
 
+        private void CreateInstances()
+        {
+            foreach (var service in _services) service.CreateInstances(_gameShare, Signal);
+        }
+        
+        private void SetAllSharedData()
+        {
+            foreach (var service in _services) service.SetSharedObject();
+        }
+        
+        private void InjectAll()
+        {
+            foreach (var service in _services) service.Inject();
+        }
+        
         private void PreInitServices()
         {
-            foreach (var service in _services) service.PreInitialize(_gameShare, Signal);
+            foreach (var service in _services) service.PreInitialize();
         }
 
         private void InitServices()

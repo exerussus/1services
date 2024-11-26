@@ -12,16 +12,15 @@ namespace Exerussus.Servecies
         public Signal Signal => _signal;
         public GameShare GameShare => _gameShare;
 
-        public virtual void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public virtual void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
             _signal = signal;
             _gameShare = gameShare;
             _gameShare.AddSharedObject(this);
             _gameShare.AddSharedObject(service.GetType(), GetType(), this);
-            OnPreInitialize();
         }
         
-        public virtual void SetSharedObject(GameShare gameShare) { }
+        public virtual void SetSharedObject() { }
 
         public virtual void OnDestroy() { }
 
@@ -35,7 +34,7 @@ namespace Exerussus.Servecies
             _signal?.Unsubscribe(action);
         }
 
-        public virtual void OnPreInitialize() { }
+        public virtual void PreInitialize() { }
         public virtual void Initialize() {}
     }
     
@@ -43,9 +42,9 @@ namespace Exerussus.Servecies
     {
         private Action<T1> _signalSubscribeT1;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             
             SubscribeSignal(_signalSubscribeT1);
@@ -67,9 +66,9 @@ namespace Exerussus.Servecies
         private Action<T1> _signalSubscribeT1;
         private Action<T2> _signalSubscribeT2;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             
@@ -97,9 +96,9 @@ namespace Exerussus.Servecies
         private Action<T2> _signalSubscribeT2;
         private Action<T3> _signalSubscribeT3;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -133,9 +132,9 @@ namespace Exerussus.Servecies
         private Action<T3> _signalSubscribeT3;
         private Action<T4> _signalSubscribeT4;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -175,9 +174,9 @@ namespace Exerussus.Servecies
         private Action<T4> _signalSubscribeT4;
         private Action<T5> _signalSubscribeT5;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -223,9 +222,9 @@ namespace Exerussus.Servecies
         private Action<T5> _signalSubscribeT5;
         private Action<T6> _signalSubscribeT6;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -277,9 +276,9 @@ namespace Exerussus.Servecies
         private Action<T6> _signalSubscribeT6;
         private Action<T7> _signalSubscribeT7;
 
-        public override void PreInitialize(GameShare gameShare, Signal signal, Service service)
+        public override void CreateInstances(GameShare gameShare, Signal signal, Service service)
         {
-            base.PreInitialize(gameShare, signal, service); 
+            base.CreateInstances(gameShare, signal, service); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;

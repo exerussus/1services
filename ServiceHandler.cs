@@ -10,7 +10,7 @@ namespace Exerussus.Servecies
     {
         public abstract StartType Autostart { get; }
         public abstract Signal Signal { get; }
-        private GameShare _gameShare = new();
+        public abstract GameShare GameShare { get; }
         private Service[] _services;
         private Service[] _fixedUpdateServices;
         private Service[] _updateServices;
@@ -18,8 +18,6 @@ namespace Exerussus.Servecies
         private bool _hasFixedUpdateServices;
         private bool _hasUpdateServices;
         public bool IsInitialize { get; private set; }
-
-        public GameShare GameShare => _gameShare;
 
         private void Awake()
         {
@@ -34,7 +32,7 @@ namespace Exerussus.Servecies
         public void Initialize()
         {
             _services = GetServices();
-            SetSharedData(_gameShare);
+            SetSharedData(GameShare);
             CreateInstances();
             SetAllSharedData();
             InjectAll();
@@ -52,7 +50,7 @@ namespace Exerussus.Servecies
 
         private void CreateInstances()
         {
-            foreach (var service in _services) service.CreateInstances(_gameShare, Signal);
+            foreach (var service in _services) service.CreateInstances(GameShare, Signal);
         }
         
         private void SetAllSharedData()

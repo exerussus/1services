@@ -115,9 +115,13 @@ namespace Exerussus.Servecies
         
         public virtual void OnInitialize() { }
         public virtual void OnPostInitServices() { }
-        public virtual void OnDestroy() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }
+
+        public virtual void OnDestroy()
+        {
+            foreach (var serviceModule in _modules) serviceModule.OnDestroy();
+        }
     }
     
     public abstract class Service<T1> : Service where T1 : struct

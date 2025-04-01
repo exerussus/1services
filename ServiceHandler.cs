@@ -1,7 +1,11 @@
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Exerussus._1Extensions.SignalSystem;
 using Exerussus._1Extensions.SmallFeatures;
+using Exerussus.Servecies.Interfaces;
 using UnityEngine;
 
 namespace Exerussus.Servecies
@@ -14,6 +18,7 @@ namespace Exerussus.Servecies
         private Service[] _services;
         private Service[] _fixedUpdateServices;
         private Service[] _updateServices;
+        private readonly Dictionary<Type, IMicroService> _microServices = new();
 
         private bool _hasFixedUpdateServices;
         private bool _hasUpdateServices;
@@ -42,6 +47,7 @@ namespace Exerussus.Servecies
             PostInitServices();
 
             GetAllUpdates();
+            GetAllMicroServices();
             
             IsInitialize = true;
         }
@@ -91,7 +97,49 @@ namespace Exerussus.Servecies
             _updateServices = _services.Where(x => x.HasUpdateModules).ToArray();
             if (_updateServices.Length > 0) _hasUpdateServices = true;
         }
+
+        private void GetAllMicroServices()
+        {
+            var microServices = new List<IMicroService>();
+            foreach (var service in _services)
+            {
+                if (service is IMicroService microService) microServices.Add(microService);
+                service.FillMicroServices(microServices);
+            }
+
+            foreach (var microService in microServices)
+            {
+                if (_microServices.ContainsKey(microService.GetType())) Debug.LogError($"MicroService with type {microService.GetType()} already exists!");
+                _microServices[microService.GetType()] = microService;
+            }
+        }
+
+        public async Task<(bool result, MicroServiceProcessState state)> RunProcessAsync<T>(MicroServiceProcessContext context = null) where T : IMicroService
+        {
+            if (context != null) MicroServiceProcessContext.ChangeProcessState(context, MicroServiceProcessState.Waiting); 
+            
+            var type = typeof(T);
+            
+            if (!_microServices.TryGetValue(type, out var microService)) return (false, MicroServiceProcessState.NotFoundService);
+
+            if (context == null) context = new MicroServiceProcessContext();
+
+            MicroServiceProcessContext.ChangeProcessState(context, MicroServiceProcessState.Processing);
+
+            try
+            { 
+                var result = await microService.RunProcess(context);
+                MicroServiceProcessContext.ChangeProcessState(context, result);
+                return (true, result);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message + "\n" + e.StackTrace);
+                return (false, MicroServiceProcessState.FailedInProcess);
+            }
+        }
         
+
         public virtual void Update()
         {
             if (!_hasUpdateServices) return;

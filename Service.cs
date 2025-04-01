@@ -64,6 +64,14 @@ namespace Exerussus.Servecies
             foreach (var serviceModule in _modules) serviceModule.PreInitialize();
         }
 
+        public void FillMicroServices(List<IMicroService> microServices)
+        {
+            foreach (var serviceModule in _modules)
+            {
+                if (serviceModule is IMicroService microService) microServices.Add(microService);
+            }
+        }
+
         public void SubscribeSignal<T>(Action<T> action) where T : struct
         {
             _signal.Subscribe(action);

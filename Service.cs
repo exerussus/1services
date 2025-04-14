@@ -11,65 +11,14 @@ namespace Exerussus.Servecies
     {
         private GameShare _gameShare;
         private Signal _signal;
-        private ServiceModule[] _modules;
-        private IModuleUpdate[] _updateModules;
-        private IModuleFixedUpdate[] _fixedUpdateModules;
-
         public GameShare GameShare => _gameShare;
         public Signal Signal => _signal;
-        public bool HasFixedUpdateModules { get; private set; }
-        public bool HasUpdateModules { get; private set; }
 
-        public virtual void CreateInstances(GameShare gameShare, Signal signal)
+        public virtual void CreateInstances(ServiceCollector serviceCollector)
         {
-            _gameShare = gameShare;
-            _signal = signal;
+            _gameShare = serviceCollector.GameShare;
+            _signal = serviceCollector.Signal;
             _gameShare.AddSharedObject(this);
-            _modules = GetModules();
-
-            if (_modules.Length != 0)
-            {
-                foreach (var serviceModule in _modules) serviceModule.CreateInstances(gameShare, signal, this);
-            
-                var updateList = new List<IModuleUpdate>();
-                foreach (var serviceModule in _modules)
-                {
-                    if (serviceModule is IModuleUpdate updateModule)
-                    {
-                        HasUpdateModules = true;
-                        updateList.Add(updateModule);
-                    }
-                }
-
-                _updateModules = updateList.ToArray();
-
-                var fixedUpdateList = new List<IModuleFixedUpdate>();
-                foreach (var serviceModule in _modules)
-                {
-                    if (serviceModule is IModuleFixedUpdate updateModule)
-                    {
-                        HasFixedUpdateModules = true;
-                        fixedUpdateList.Add(updateModule);
-                    }
-                }
-
-                _fixedUpdateModules = fixedUpdateList.ToArray();
-            }
-
-            SetSharedObject();
-        }
-        
-        public virtual void PreInitialize()
-        {
-            foreach (var serviceModule in _modules) serviceModule.PreInitialize();
-        }
-
-        public void FillMicroServices(List<IMicroService> microServices)
-        {
-            foreach (var serviceModule in _modules)
-            {
-                if (serviceModule is IMicroService microService) microServices.Add(microService);
-            }
         }
 
         public void SubscribeSignal<T>(Action<T> action) where T : struct
@@ -82,63 +31,24 @@ namespace Exerussus.Servecies
             _signal?.Unsubscribe(action);
         }
 
-        public void SetSharedObject()
-        {
-            OnSetSharedObject();
-            foreach (var serviceModule in _modules) serviceModule.SetSharedObject();
-        }
-
-        public void Inject()
-        {
-            _gameShare.InjectSharedObjects(this);
-            foreach (var serviceModule in _modules) _gameShare.InjectSharedObjects(serviceModule);
-        }
+        public abstract void SetModules(ServiceCollector serviceCollector);
         
-        public virtual void OnSetSharedObject() { }
-
-        protected abstract ServiceModule[] GetModules();
-
-        public void Update()
-        {
-            foreach (var module in _updateModules) module.Update();
-            OnUpdate();
-        }
-
-        public void FixedUpdate()
-        {
-            foreach (var module in _fixedUpdateModules) module.FixedUpdate();
-            OnFixedUpdate();
-        }
-
-        public void Initialize()
-        {
-            OnInitialize();
-            foreach (var serviceModule in _modules) serviceModule.Initialize();
-        }
-
-        public void PostInitServices()
-        {
-            OnPostInitServices();
-        }
-        
-        public virtual void OnInitialize() { }
-        public virtual void OnPostInitServices() { }
-        public virtual void OnUpdate() { }
-        public virtual void OnFixedUpdate() { }
-
-        public virtual void OnDestroy()
-        {
-            foreach (var serviceModule in _modules) serviceModule.OnDestroy();
-        }
+        public virtual void SetSharedObject() { }
+        public virtual void PreInitialize() { }
+        public virtual void Initialize() { }
+        public virtual void PostInitialize() { }
+        public virtual void OnDestroy() { }
+        /// <summary> Не срабатывает при закрытии приложения. </summary>
+        public virtual void OnProtectedDestroy() { }
     }
     
     public abstract class Service<T1> : Service where T1 : struct
     {
         private Action<T1> _signalSubscribeT1;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             
             SubscribeSignal(_signalSubscribeT1);
@@ -160,9 +70,9 @@ namespace Exerussus.Servecies
         private Action<T1> _signalSubscribeT1;
         private Action<T2> _signalSubscribeT2;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             
@@ -190,9 +100,9 @@ namespace Exerussus.Servecies
         private Action<T2> _signalSubscribeT2;
         private Action<T3> _signalSubscribeT3;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -226,9 +136,9 @@ namespace Exerussus.Servecies
         private Action<T3> _signalSubscribeT3;
         private Action<T4> _signalSubscribeT4;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -268,9 +178,9 @@ namespace Exerussus.Servecies
         private Action<T4> _signalSubscribeT4;
         private Action<T5> _signalSubscribeT5;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -316,9 +226,9 @@ namespace Exerussus.Servecies
         private Action<T5> _signalSubscribeT5;
         private Action<T6> _signalSubscribeT6;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -370,9 +280,9 @@ namespace Exerussus.Servecies
         private Action<T6> _signalSubscribeT6;
         private Action<T7> _signalSubscribeT7;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -430,9 +340,9 @@ namespace Exerussus.Servecies
         private Action<T7> _signalSubscribeT7;
         private Action<T8> _signalSubscribeT8;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -496,9 +406,9 @@ namespace Exerussus.Servecies
         private Action<T8> _signalSubscribeT8;
         private Action<T9> _signalSubscribeT9;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;
@@ -568,9 +478,9 @@ namespace Exerussus.Servecies
         private Action<T9> _signalSubscribeT9;
         private Action<T10> _signalSubscribeT10;
 
-        public override void CreateInstances(GameShare gameShare, Signal signal)
+        public override void CreateInstances(ServiceCollector serviceCollector)
         {
-            base.CreateInstances(gameShare, signal); 
+            base.CreateInstances(serviceCollector); 
             _signalSubscribeT1 = OnSignal;
             _signalSubscribeT2 = OnSignal;
             _signalSubscribeT3 = OnSignal;

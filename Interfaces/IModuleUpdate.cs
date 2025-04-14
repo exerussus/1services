@@ -2,6 +2,7 @@
 {
     public interface IModuleUpdate
     {
-        public void Update();
+        public float UpdateDelay { get; }
+        public void Update(float deltaTime);
     }
 }

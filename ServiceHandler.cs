@@ -1,8 +1,7 @@
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Exerussus._1EasyEcs.Scripts.Core;
 using Exerussus._1Extensions.SignalSystem;
 using Exerussus._1Extensions.SmallFeatures;
 using Exerussus.Servecies.Interfaces;
@@ -15,14 +14,13 @@ namespace Exerussus.Servecies
         public abstract StartType Autostart { get; }
         public abstract Signal Signal { get; }
         public GameShare GameShare { get; private set; }
-        private Service[] _services;
-        private Service[] _fixedUpdateServices;
-        private Service[] _updateServices;
-        private readonly Dictionary<Type, IMicroService> _microServices = new();
 
-        private bool _hasFixedUpdateServices;
+        private Service[] _updateServices;
+        private ServiceCollector _serviceCollector;
+
         private bool _hasUpdateServices;
         public bool IsInitialize { get; private set; }
+        private bool _isQuit;
 
         private void Awake()
         {
@@ -36,18 +34,20 @@ namespace Exerussus.Servecies
 
         public void Initialize()
         {
+            Application.quitting += () => _isQuit = true;
             GameShare = GetGameShare();
-            _services = GetServices();
+            _serviceCollector = new ServiceCollector(GameShare, Signal);
             SetSharedData(GameShare);
-            CreateInstances();
+            SetServices(_serviceCollector);
+            CreateServiceInstances();
+            SetModules();
+            CreateServiceModuleInstances();
             SetAllSharedData();
             InjectAll();
             PreInitServices();
             InitServices();
             PostInitServices();
-
-            GetAllUpdates();
-            GetAllMicroServices();
+            BakeCollector();
             
             IsInitialize = true;
         }
@@ -57,61 +57,56 @@ namespace Exerussus.Servecies
             return new GameShare();
         }
         protected virtual void SetSharedData(GameShare gameShare) { }
-        protected abstract Service[] GetServices();
+        protected abstract void SetServices(ServiceCollector serviceCollector);
 
-        private void CreateInstances()
+        private void CreateServiceInstances()
         {
-            foreach (var service in _services) service.CreateInstances(GameShare, Signal);
+            foreach (var service in _serviceCollector.Service) service.CreateInstances(_serviceCollector);
+        }
+
+        private void SetModules()
+        {
+            foreach (var service in _serviceCollector.Service) service.SetModules(_serviceCollector);
+        }
+        
+        private void CreateServiceModuleInstances()
+        {
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.CreateInstances(_serviceCollector);
         }
         
         private void SetAllSharedData()
         {
-            foreach (var service in _services) service.SetSharedObject();
+            foreach (var service in _serviceCollector.Service) service.SetSharedObject();
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.SetSharedObject();
         }
         
         private void InjectAll()
         {
-            foreach (var service in _services) service.Inject();
+            foreach (var service in _serviceCollector.Service) GameShare.InjectSharedObjects(service);
+            foreach (var serviceModule in _serviceCollector.ServiceModules) GameShare.InjectSharedObjects(serviceModule);
         }
         
         private void PreInitServices()
         {
-            foreach (var service in _services) service.PreInitialize();
+            foreach (var service in _serviceCollector.Service) service.PreInitialize();
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.PreInitialize();
         }
 
         private void InitServices()
         {
-            foreach (var service in _services) service.Initialize();
+            foreach (var service in _serviceCollector.Service) service.Initialize();
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.Initialize();
         }
 
         private void PostInitServices()
         {
-            foreach (var service in _services) service.PostInitServices();
+            foreach (var service in _serviceCollector.Service) service.PostInitialize();
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.PostInitialize();
         }
 
-        private void GetAllUpdates()
+        private void BakeCollector()
         {
-            _fixedUpdateServices = _services.Where(x => x.HasFixedUpdateModules).ToArray();
-            if (_fixedUpdateServices.Length > 0) _hasFixedUpdateServices = true;
-            
-            _updateServices = _services.Where(x => x.HasUpdateModules).ToArray();
-            if (_updateServices.Length > 0) _hasUpdateServices = true;
-        }
-
-        private void GetAllMicroServices()
-        {
-            var microServices = new List<IMicroService>();
-            foreach (var service in _services)
-            {
-                if (service is IMicroService microService) microServices.Add(microService);
-                service.FillMicroServices(microServices);
-            }
-
-            foreach (var microService in microServices)
-            {
-                if (_microServices.ContainsKey(microService.GetType())) Debug.LogError($"MicroService with type {microService.GetType()} already exists!");
-                _microServices[microService.GetType()] = microService;
-            }
+            _serviceCollector.Bake();
         }
 
         public async Task<(bool result, MicroServiceProcessState state)> RunProcessAsync<T>(MicroServiceProcessContext context = null) where T : IMicroService
@@ -120,7 +115,7 @@ namespace Exerussus.Servecies
             
             var type = typeof(T);
             
-            if (!_microServices.TryGetValue(type, out var microService)) return (false, MicroServiceProcessState.NotFoundService);
+            if (!_serviceCollector.MicroServicesDict.TryGetValue(type, out var microService)) return (false, MicroServiceProcessState.NotFoundService);
 
             if (context == null) context = new MicroServiceProcessContext();
 
@@ -138,33 +133,22 @@ namespace Exerussus.Servecies
                 return (false, MicroServiceProcessState.FailedInProcess);
             }
         }
-        
 
         public virtual void Update()
         {
-            if (!_hasUpdateServices) return;
-
-            for (int i = 0; i < _updateServices.Length; i++)
-            {
-                var service = _updateServices[i];
-                service.Update();
-            }
-        }
-        
-        public virtual void FixedUpdate()
-        {
-            if (!_hasFixedUpdateServices) return;
-
-            for (int i = 0; i < _fixedUpdateServices.Length; i++)
-            {
-                var service = _fixedUpdateServices[i];
-                service.FixedUpdate();
-            }
+            _serviceCollector.Update();
         }
 
         protected virtual void OnDestroy()
         {
-            foreach (var service in _services) service.OnDestroy();
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnDestroy();
+            foreach (var service in _serviceCollector.Service) service.OnDestroy();
+            
+            if (!_isQuit)
+            {
+                foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnProtectedDestroy();
+                foreach (var service in _serviceCollector.Service) service.OnProtectedDestroy();
+            }
         }
 
         public enum StartType

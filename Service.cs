@@ -31,8 +31,7 @@ namespace Exerussus.Servecies
             _signal?.Unsubscribe(action);
         }
 
-        public abstract void SetModules(ServiceCollector serviceCollector);
-        
+        public virtual void SetModules(ServiceCollector serviceCollector) { }
         public virtual void SetSharedObject() { }
         public virtual void PreInitialize() { }
         public virtual void Initialize() { }

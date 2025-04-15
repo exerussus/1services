@@ -34,7 +34,6 @@ namespace Exerussus.Servecies
 
         public void Initialize()
         {
-            Application.quitting += () => _isQuit = true;
             GameShare = GetGameShare();
             _serviceCollector = new ServiceCollector(GameShare, Signal);
             SetSharedData(GameShare);
@@ -142,11 +141,9 @@ namespace Exerussus.Servecies
 
         protected virtual void OnDestroy()
         {
-            if (!_isQuit)
-            {
-                foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnDestroy();
-                foreach (var service in _serviceCollector.Service) service.OnDestroy();
-            }
+            if (_serviceCollector == null) return;
+            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnDestroy();
+            foreach (var service in _serviceCollector.Service) service.OnDestroy();
         }
 
         public enum StartType

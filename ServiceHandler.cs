@@ -136,6 +136,7 @@ namespace Exerussus.Servecies
 
         public virtual void Update()
         {
+            if (!IsInitialize) return;
             _serviceCollector.Update();
         }
 

@@ -19,10 +19,6 @@ namespace Exerussus.Servecies
             _gameShare.AddSharedObject(this);
         }
         
-        public virtual void SetSharedObject() { }
-        public virtual void OnProtectedDestroy() { }
-        public virtual void OnDestroy() { }
-
         public void SubscribeSignal<T>(Action<T> action) where T : struct
         {
             _signal.Subscribe(action);
@@ -33,9 +29,11 @@ namespace Exerussus.Servecies
             _signal?.Unsubscribe(action);
         }
 
+        public virtual void SetSharedObject() { }
         public virtual void PreInitialize() { }
         public virtual void Initialize() {}
         public virtual void PostInitialize() {}
+        public virtual void OnDestroy() { }
     }
     
     public abstract class ServiceModule<T1> : ServiceModule where T1 : struct

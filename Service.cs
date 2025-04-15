@@ -37,8 +37,6 @@ namespace Exerussus.Servecies
         public virtual void Initialize() { }
         public virtual void PostInitialize() { }
         public virtual void OnDestroy() { }
-        /// <summary> Не срабатывает при закрытии приложения. </summary>
-        public virtual void OnProtectedDestroy() { }
     }
     
     public abstract class Service<T1> : Service where T1 : struct

@@ -142,13 +142,10 @@ namespace Exerussus.Servecies
 
         protected virtual void OnDestroy()
         {
-            foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnDestroy();
-            foreach (var service in _serviceCollector.Service) service.OnDestroy();
-            
             if (!_isQuit)
             {
-                foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnProtectedDestroy();
-                foreach (var service in _serviceCollector.Service) service.OnProtectedDestroy();
+                foreach (var serviceModule in _serviceCollector.ServiceModules) serviceModule.OnDestroy();
+                foreach (var service in _serviceCollector.Service) service.OnDestroy();
             }
         }
 

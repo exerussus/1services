@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Exerussus._1EasyEcs.Scripts.Core;
+using Exerussus._1Extensions.Abstractions;
 using Exerussus._1Extensions.SignalSystem;
 using Exerussus._1Extensions.SmallFeatures;
 using Exerussus.Servecies.Interfaces;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace Exerussus.Servecies
 {
-    public abstract class ServiceHandler : MonoBehaviour
+    public abstract class ServiceHandler : MonoBehaviour, IInitializable
     {
         public abstract StartType Autostart { get; }
         public abstract Signal Signal { get; }
@@ -19,8 +20,8 @@ namespace Exerussus.Servecies
         private ServiceCollector _serviceCollector;
 
         private bool _hasUpdateServices;
-        public bool IsInitialize { get; private set; }
         private bool _isQuit;
+        public bool IsInitialized { get; private set; }
 
         private void Awake()
         {
@@ -31,6 +32,7 @@ namespace Exerussus.Servecies
         {
             if (Autostart == StartType.Start) Initialize();
         }
+
 
         public void Initialize()
         {
@@ -48,7 +50,7 @@ namespace Exerussus.Servecies
             PostInitServices();
             BakeCollector();
             
-            IsInitialize = true;
+            IsInitialized = true;
         }
 
         protected virtual GameShare GetGameShare()
@@ -135,7 +137,7 @@ namespace Exerussus.Servecies
 
         public virtual void Update()
         {
-            if (!IsInitialize) return;
+            if (!IsInitialized) return;
             _serviceCollector.Update();
         }
 

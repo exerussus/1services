@@ -36,7 +36,6 @@ namespace Exerussus.Servecies
 
         public void Initialize()
         {
-            Debug.Log("1");
             GameShare = GetGameShare();
             _serviceCollector = new ServiceCollector(GameShare, Signal);
             SetSharedData(GameShare);
@@ -51,7 +50,6 @@ namespace Exerussus.Servecies
             PostInitServices();
             BakeCollector();
             
-            Debug.Log("2");
             IsInitialized = true;
         }
 

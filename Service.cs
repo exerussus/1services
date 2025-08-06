@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using Exerussus._1EasyEcs.Scripts.Core;
 using Exerussus._1Extensions.SignalSystem;
 using Exerussus._1Extensions.SmallFeatures;
-using Exerussus.Servecies.Interfaces;
 
 namespace Exerussus.Servecies
 {
